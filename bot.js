@@ -1,8 +1,21 @@
 // --- Discord Bot ---
 require('dotenv').config();
 const { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes } = require('discord.js');
-const Database = require('better-sqlite3');
+const Database = require('better-sqlite3');#####################
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates
+  ]
+});
 
+client.on("ready", () => {
+  console.log(`Bot connecté en tant que ${client.user.tag}`);
+});
+
+client.login(process.env.TOKEN);
+
+#####################################
 // --- Database ---
 const db = new Database('./voice_time.db');
 
