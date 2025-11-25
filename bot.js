@@ -1,3 +1,4 @@
+// --- Keep-alive server ---
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -5,10 +6,7 @@ const PORT = process.env.PORT || 3000;
 app.get("/", (req, res) => res.send("Bot actif !"));
 app.listen(PORT, () => console.log(`Serveur web actif sur le port ${PORT}`));
 
-require("dotenv").config();
-client.login(process.env.DISCORD_TOKEN);
-
-// bot.js — Bot temps de vocal complet et prêt
+// --- Discord Bot ---
 require('dotenv').config();
 const { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes } = require('discord.js');
 const Database = require('better-sqlite3');
@@ -42,6 +40,7 @@ const addTotal = db.prepare(`
 const getTotal = db.prepare("SELECT total_seconds FROM totals WHERE user_id=? AND guild_id=?");
 const getTop = db.prepare("SELECT * FROM totals WHERE guild_id=? ORDER BY total_seconds DESC LIMIT 10");
 
+// --- Time format ---
 function format(sec) {
   const d = Math.floor(sec / 86400); sec %= 86400;
   const h = Math.floor(sec / 3600); sec %= 3600;
@@ -65,19 +64,22 @@ const commands = [
   new SlashCommandBuilder().setName("leaderboard").setDescription("Classement des utilisateurs par temps vocal."),
 ].map(c => c.toJSON());
 
-// --- Login ---
+// --- Bot ready ---
 client.once("ready", async () => {
   console.log("Bot connecté en tant que " + client.user.tag);
 
-  // Enregistrement des commandes (guild local pour instantané)
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+
   if (process.env.GUILD_ID) {
-    await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands });
-    console.log("Commandes slash chargées dans le serveur de test.");
+    await rest.put(
+      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      { body: commands }
+    );
+    console.log("Commandes slash chargées.");
   }
 });
 
-// --- Suivi du temps vocal ---
+// --- Voice tracking ---
 client.on("voiceStateUpdate", (oldS, newS) => {
   const g = newS.guild.id;
   const u = newS.id;
@@ -98,7 +100,7 @@ client.on("voiceStateUpdate", (oldS, newS) => {
   }
 });
 
-// --- Commands ---
+// --- Slash commands handling ---
 client.on("interactionCreate", async i => {
   if (!i.isChatInputCommand()) return;
 
@@ -127,4 +129,5 @@ client.on("interactionCreate", async i => {
   }
 });
 
+// --- Login (correct placement) ---
 client.login(process.env.DISCORD_TOKEN);
