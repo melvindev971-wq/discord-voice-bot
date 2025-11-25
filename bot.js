@@ -1,11 +1,3 @@
-// --- Keep-alive server ---
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get("/", (req, res) => res.send("Bot actif !"));
-app.listen(PORT, () => console.log(`Serveur web actif sur le port ${PORT}`));
-
 // --- Discord Bot ---
 require('dotenv').config();
 const { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes } = require('discord.js');
